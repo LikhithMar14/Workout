@@ -21,6 +21,7 @@ type Application struct{
 }
 
 
+
 func NewApplication(cfg pkg.Config) (*Application, error){
 	pgDB, err := store.Open(cfg)
 	if err != nil {
@@ -31,7 +32,8 @@ func NewApplication(cfg pkg.Config) (*Application, error){
 		panic(err)
 	}
 	logger := log.New(os.Stdout,"",log.Ldate|log.Ltime|log.Lshortfile)
-	workoutHandler := api.NewWorkoutHandler(logger)
+	workoutStore := store.NewPostgressWorkoutStore(pgDB)
+	workoutHandler := api.NewWorkoutHandler(workoutStore,logger)
 	app := &Application{
 		Logger: logger,
 		WorkoutHandler: workoutHandler,
