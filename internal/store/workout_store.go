@@ -146,7 +146,7 @@ func (pg *PostgressWorkoutStore) UpdateWorkout(workout *Workout) error {
 		WHERE id=$5
 	
 	`
-	//we use exec when we are doing put/patch/delete
+	//we use exec when we are doing put/patch/delete or when we are not returning anything
 	result, err := tx.Exec(query, workout.Title, workout.Description, workout.DurationMinutes, workout.CaloriesBurned, workout.ID)
 	if err != nil {
 		return err
@@ -202,13 +202,13 @@ func (pg *PostgressWorkoutStore) DeleteWorkoutByID(id int64) error {
 		return err
 	}
 	rowsAffected, err := result.RowsAffected()
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
 	if err != nil {
 		return err
 	}
 
-	if rowsAffected == 0 {
-		return sql.ErrNoRows
-	}
 
 	return nil
 }

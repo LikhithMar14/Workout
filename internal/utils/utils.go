@@ -12,18 +12,18 @@ import (
 
 type Envelope map[string]interface{}
 
-func WriteJSON(w http.ResponseWriter, status int, data Envelope)error{
-	//This will return a byte slice to the js if there are no errors
-	js, err := json.MarshalIndent(data,""," ")
-	if err != nil {
-		return err
-	}
-	js = append(js,'\n')
-	w.WriteHeader(status)
-	w.Header().Set("Content-Type","application/json")
-	w.Write(js)
-	return nil
+func WriteJSON(w http.ResponseWriter, status int, data Envelope) error {
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(status)
+
+    encoder := json.NewEncoder(w)
+    encoder.SetIndent("", " ") 
+    if err := encoder.Encode(data); err != nil {
+        return err
+    }
+    return nil
 }
+
 
 func ReadIDParam(r *http.Request) (int64, error) {
 	idParam := chi.URLParam(r, "id")
