@@ -11,7 +11,7 @@ func SetupRoutes(app *app.Application) http.Handler {
 	r.Get("/workouts/{id}",app.WorkoutHandler.HandleGetWorkoutByID)
 	r.Post("/workouts", app.WorkoutHandler.HandleCreateWorkout)
 	r.Put("/workouts/{id}",app.WorkoutHandler.HandleUpdateWorkoutByID)
-	r.Delete("/workouts/{id}",app.WorkoutHandler.HandleCreateWorkout)
+	r.Delete("/workouts/{id}",app.WorkoutHandler.HandleDeleteWorkoutByID)
 	r.Get("/health", app.HealthCheck)
 
 	return r
