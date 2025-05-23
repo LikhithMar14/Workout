@@ -13,6 +13,7 @@ func SetupRoutes(app *app.Application) http.Handler {
 	r.Put("/workouts/{id}",app.WorkoutHandler.HandleUpdateWorkoutByID)
 	r.Delete("/workouts/{id}",app.WorkoutHandler.HandleDeleteWorkoutByID)
 	r.Get("/health", app.HealthCheck)
+	r.Post("/users",app.UserHandler.HandleRegisterUser)
 
 	return r
 }
