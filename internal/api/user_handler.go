@@ -11,7 +11,6 @@ import (
 	"github.com/LikhithMar14/workout-tracker/internal/auth"
 	"github.com/LikhithMar14/workout-tracker/internal/store"
 	"github.com/LikhithMar14/workout-tracker/internal/utils"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 type registerUserRequest struct {
@@ -127,19 +126,8 @@ func (uh *UserHandler) HandleRegisterUser(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	now := time.Now()
-
-	claims := &auth.CustomClaims{
-		UserID: user.ID,
-		Email:  user.Email,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    "workout-tracker-app",
-			Audience:  []string{"workout-tracker-users"},
-			ExpiresAt: jwt.NewNumericDate(now.Add(24 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(now),
-			NotBefore: jwt.NewNumericDate(now),
-		},
-	}
+	// Create JWT claims using the new function
+	claims := auth.NewCustomClaims(user.ID, user.Email, "workout-tracker-app", "workout-tracker-users", 24*time.Hour)
 
 	authenticator := auth.NewJWTAuthenticator("mysecret", "workout-tracker-users", "workout-tracker-app")
 	tokenString, err := authenticator.GenerateToken(claims)
@@ -169,7 +157,7 @@ func (uh *UserHandler) HandleLoginUser(w http.ResponseWriter, r *http.Request) {
 		utils.WriteJSON(w, http.StatusBadRequest, utils.Envelope{"error": err.Error()})
 		return
 	}
-	user , err := uh.UserStore.GetUserByUsername(req.Username)
+	user, err := uh.UserStore.GetUserByUsername(req.Username)
 
 	if err != nil {
 		uh.Logger.Printf("ERROR: getting user by username %v", err)
@@ -193,19 +181,9 @@ func (uh *UserHandler) HandleLoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	now := time.Now()
+	// Create JWT claims using the new function
+	claims := auth.NewCustomClaims(user.ID, user.Email, "workout-tracker-app", "workout-tracker-users", 24*time.Hour)
 
-	claims := &auth.CustomClaims{
-		UserID: user.ID,
-		Email: user.Email,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    "workout-tracker-app",
-			Audience:  []string{"workout-tracker-users"},
-			ExpiresAt: jwt.NewNumericDate(now.Add(24 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(now),
-			NotBefore: jwt.NewNumericDate(now),
-		},
-	}
 	authenticator := auth.NewJWTAuthenticator("mysecret", "workout-tracker-users", "workout-tracker-app")
 	tokenString, err := authenticator.GenerateToken(claims)
 	if err != nil {
@@ -214,6 +192,4 @@ func (uh *UserHandler) HandleLoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, utils.Envelope{"user": user, "token": tokenString})
-	
-
 }
